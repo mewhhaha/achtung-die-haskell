@@ -1,0 +1,189 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.4.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: bb7aa4a5a4295ea8415096432b18f34a9a87e37b028927b587269907ee9e5dd4
+
+name:           apecs-snake
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/apecs-snake#readme>
+homepage:       https://github.com/githubuser/apecs-snake#readme
+bug-reports:    https://github.com/githubuser/apecs-snake/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2021 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/apecs-snake
+
+library
+  exposed-modules:
+      Game
+      Play
+      Player.Archetype
+      Player.Color
+      System.Draw
+      System.Input
+      System.Logic
+      System.Overlay
+      System.Setup
+      World
+      World.Component
+  other-modules:
+      Paths_apecs_snake
+  hs-source-dirs:
+      src
+  default-extensions:
+      NoImplicitPrelude
+      StarIsType
+      MonomorphismRestriction
+      TraditionalRecordSyntax
+      EmptyDataDecls
+      ForeignFunctionInterface
+      PatternGuards
+      DoAndIfThenElse
+      LambdaCase
+      RelaxedPolyRec
+      BangPatterns
+      BinaryLiterals
+      ConstrainedClassMethods
+      ConstraintKinds
+      DeriveDataTypeable
+      DeriveFoldable
+      DeriveFunctor
+      DeriveGeneric
+      DeriveLift
+      DeriveTraversable
+      EmptyCase
+      EmptyDataDeriving
+      ExistentialQuantification
+      ExplicitForAll
+      FlexibleContexts
+      FlexibleInstances
+      GADTSyntax
+      GeneralisedNewtypeDeriving
+      HexFloatLiterals
+      ImportQualifiedPost
+      InstanceSigs
+      KindSignatures
+      MultiParamTypeClasses
+      NamedFieldPuns
+      NamedWildCards
+      NumericUnderscores
+      PolyKinds
+      PostfixOperators
+      RankNTypes
+      ScopedTypeVariables
+      StandaloneDeriving
+      StandaloneKindSignatures
+      TupleSections
+      TypeApplications
+      OverloadedStrings
+      TypeOperators
+      TypeSynonymInstances
+  ghc-options: -Wall -fwrite-ide-info -fexternal-interpreter -fvalidate-ide-info
+  build-depends:
+      apecs
+    , async
+    , base >=4.7 && <5
+    , containers
+    , filepath
+    , hsnoise
+    , linear
+    , mtl
+    , random
+    , rapid
+    , relude
+    , sdl2
+    , sdl2-image
+    , sdl2-mixer
+    , sdl2-ttf
+    , text
+    , vector
+  default-language: Haskell2010
+
+executable apecs-snake-exe
+  main-is: Main.hs
+  other-modules:
+      Reload
+      Paths_apecs_snake
+  hs-source-dirs:
+      app
+  default-extensions:
+      NoImplicitPrelude
+      StarIsType
+      MonomorphismRestriction
+      TraditionalRecordSyntax
+      EmptyDataDecls
+      ForeignFunctionInterface
+      PatternGuards
+      DoAndIfThenElse
+      LambdaCase
+      RelaxedPolyRec
+      BangPatterns
+      BinaryLiterals
+      ConstrainedClassMethods
+      ConstraintKinds
+      DeriveDataTypeable
+      DeriveFoldable
+      DeriveFunctor
+      DeriveGeneric
+      DeriveLift
+      DeriveTraversable
+      EmptyCase
+      EmptyDataDeriving
+      ExistentialQuantification
+      ExplicitForAll
+      FlexibleContexts
+      FlexibleInstances
+      GADTSyntax
+      GeneralisedNewtypeDeriving
+      HexFloatLiterals
+      ImportQualifiedPost
+      InstanceSigs
+      KindSignatures
+      MultiParamTypeClasses
+      NamedFieldPuns
+      NamedWildCards
+      NumericUnderscores
+      PolyKinds
+      PostfixOperators
+      RankNTypes
+      ScopedTypeVariables
+      StandaloneDeriving
+      StandaloneKindSignatures
+      TupleSections
+      TypeApplications
+      OverloadedStrings
+      TypeOperators
+      TypeSynonymInstances
+  ghc-options: -Wall -fwrite-ide-info -fexternal-interpreter -fvalidate-ide-info -threaded -rtsopts -with-rtsopts=-N -O2 +RTS -xn -RTS
+  build-depends:
+      apecs
+    , apecs-snake
+    , async
+    , base >=4.7 && <5
+    , containers
+    , filepath
+    , hsnoise
+    , linear
+    , mtl
+    , random
+    , rapid
+    , relude
+    , sdl2
+    , sdl2-image
+    , sdl2-mixer
+    , sdl2-ttf
+    , text
+    , vector
+  default-language: Haskell2010

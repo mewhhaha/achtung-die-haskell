@@ -1,0 +1,104 @@
+name: acthung-die-apecs
+version: 0.1.0.0
+github: "https://github.com/mewhhaha/achtung-die-haskell"
+license: Whatever
+author: "Jacob Torrång"
+maintainer: "kopatheonlyone@hotmail.com"
+copyright: "2021 Jacob Torrång"
+
+default-extensions:
+  - NoImplicitPrelude
+  - StarIsType
+  - MonomorphismRestriction
+  - TraditionalRecordSyntax
+  - EmptyDataDecls
+  - ForeignFunctionInterface
+  - PatternGuards
+  - DoAndIfThenElse
+  - LambdaCase
+  - RelaxedPolyRec
+  - BangPatterns
+  - BinaryLiterals
+  - ConstrainedClassMethods
+  - ConstraintKinds
+  - DeriveDataTypeable
+  - DeriveFoldable
+  - DeriveFunctor
+  - DeriveGeneric
+  - DeriveLift
+  - DeriveTraversable
+  - EmptyCase
+  - EmptyDataDeriving
+  - ExistentialQuantification
+  - ExplicitForAll
+  - FlexibleContexts
+  - FlexibleInstances
+  - GADTSyntax
+  - GeneralisedNewtypeDeriving
+  - HexFloatLiterals
+  - ImportQualifiedPost
+  - InstanceSigs
+  - KindSignatures
+  - MultiParamTypeClasses
+  - NamedFieldPuns
+  - NamedWildCards
+  - NumericUnderscores
+  - PolyKinds
+  - PostfixOperators
+  - RankNTypes
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - StandaloneKindSignatures
+  - TupleSections
+  - TypeApplications
+  - OverloadedStrings
+  - TypeOperators
+  - TypeSynonymInstances
+
+extra-source-files:
+  - README.md
+  - ChangeLog.md
+
+
+description: Please see the README on GitHub at <https://github.com/mewhhaha/achtung-die-haskell#readme>
+
+dependencies:
+  - base >= 4.7 && < 5
+  - apecs
+  - sdl2
+  - sdl2-image
+  - sdl2-ttf
+  - sdl2-mixer
+  - linear
+  - text
+  - rapid
+  - relude
+  - async
+  - vector
+  - containers
+  - mtl
+  - hsnoise
+  - random
+  - filepath
+
+ghc-options:
+  - -Wall
+  - -fwrite-ide-info
+  - -fexternal-interpreter
+  - -fvalidate-ide-info
+
+library:
+  source-dirs: src
+
+executables:
+  apecs-snake-exe:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -O2
+      - +RTS -xn -RTS
+    dependencies:
+      - apecs-snake
