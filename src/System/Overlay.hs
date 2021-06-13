@@ -113,10 +113,20 @@ menuSceneOverlay playerInputs = do
       (Just leftKey, Just rightKey) -> do
         drawControls color leftKey rightKey (V2 calcWidth calcHeight)
       _ -> pass
-  drawText "Apecs die kurve" maxBound (V2 (windowWidth `div` 2) (windowHeight `div` 10))
+
+  drawText "Achtung die Haskell" maxBound (V2 (windowWidth `div` 2) (windowHeight `div` 10))
 
 endSceneOverlay :: System' ()
-endSceneOverlay = pass
+endSceneOverlay = do
+  window <- tickState readWindow
+  (V2 windowWidth _) <- SDL.get (SDL.windowSize window)
+  (CScore score) <- Apecs.get Apecs.global
+  let sortedScores = sortBy (flip compare `on` snd) $ Map.assocs score
+
+  forM_ (zip sortedScores [0 ..]) $ \((player, points), i) -> do
+    let origin = 20
+        rowOffset = 60
+    drawText (show points) (PlayerColor.fromPlayer player) (V2 (windowWidth `div` 2) (origin + rowOffset * i))
 
 system :: System' ()
 system = do

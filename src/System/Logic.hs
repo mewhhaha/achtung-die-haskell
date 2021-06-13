@@ -54,18 +54,7 @@ endRound input = do
 
 endMatch :: GameInput -> System' ()
 endMatch input = do
-  renderer <- tickState readRenderer
-  Apecs.set Apecs.global (CScene $ GameScene Paused input)
-
-  (CArena _ _ (Just texture)) <- Apecs.get Apecs.global
-  SDL.rendererRenderTarget renderer SDL.$= Just texture
-  SDL.rendererDrawColor renderer SDL.$= minBound
-  SDL.clear renderer
-  Apecs.set Apecs.global $ CArena mempty (perlin 1 5 0.05 0.5) (Just texture)
-
-  Apecs.cmapM $ \(CPlayer _) -> do
-    (position, direction) <- liftIO randomStart
-    return (CPosition (fromIntegral <$> position), CDirection direction, Apecs.Not :: Apecs.Not CDead)
+  Apecs.set Apecs.global $ CScene $ EndScene input
 
 turnPlayers :: Map Player PlayerInput -> System' ()
 turnPlayers playerInputs = do
@@ -111,10 +100,11 @@ tailPlayers = do
 
 scorePlayers :: System' ()
 scorePlayers = do
+  players <- Apecs.cfold (\players (CPlayer player, _ :: Apecs.Not CDead) -> Map.insert player 1 players) mempty
   Apecs.cmap $ \(CPlayer player, CPosition position@(V2 px py), CDirection direction, CBrush brush, CArena arena _ _, CScore score, _ :: Apecs.Not CDead) ->
     let tip = round <$> position + direction * pure (fromIntegral brush + 2)
         outsideArena = px < 0 || py < 0 || px > fromIntegral arenaWidth || py > fromIntegral arenaHeight
-        pointAll = Map.mapWithKey (\p v -> if p /= player then v + 1 else v) score
+        pointAll = Map.unionWith (+) (Map.delete player players) score
         pointPlayer owner = Map.mapWithKey (\p v -> if p == owner then v + 1 else v) score
      in case (Map.lookup tip arena, outsideArena) of
           (_, True) -> Right (CDead, CScore pointAll)
@@ -149,9 +139,13 @@ system = do
           if Set.member player lockedInPlayers
             then PlayerArchetype.remove player
             else PlayerArchetype.make player
-      when (isPressed continue && Set.size lockedInPlayers >= 2) $
+      when (isPressed continue && Set.size lockedInPlayers >= 2) $ do
+        endRound input
         Apecs.set Apecs.global $ CScene (GameScene Paused input)
-    EndScene _ -> pass
+    EndScene input@(GameInput _ _ continue) ->
+      when (isPressed continue) $ do
+        Apecs.set Apecs.global $ CScene (MenuScene input)
+        Apecs.cmapM_ $ \(CPlayer player) -> PlayerArchetype.remove player
     GameScene paused input@GameInput {..} -> do
       when (isActive reset) . lift $ throwError Reset
 
