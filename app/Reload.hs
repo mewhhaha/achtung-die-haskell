@@ -18,7 +18,7 @@ update = do
             join . liftIO . atomically $ readTMVar var
       play
         updateStep
-        "Apecs snake"
+        "Achtung die Haskell"
         (SDL.V2 640 480)
         initialize
 

@@ -9,6 +9,6 @@ main :: IO ()
 main =
   play
     step
-    "Apecs snake"
+    "Achtung die Haskell"
     (SDL.V2 640 480)
     initialize

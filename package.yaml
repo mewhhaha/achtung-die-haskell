@@ -1,7 +1,7 @@
-name: acthung-die-apecs
+name: achtung-die-haskell
 version: 0.1.0.0
-github: "https://github.com/mewhhaha/achtung-die-haskell"
-license: Whatever
+github: "mewhhaha/achtung-die-haskell"
+license: MIT
 author: "Jacob Torrång"
 maintainer: "kopatheonlyone@hotmail.com"
 copyright: "2021 Jacob Torrång"
@@ -91,7 +91,7 @@ library:
   source-dirs: src
 
 executables:
-  apecs-snake-exe:
+  achtung-die-haskell-exe:
     main: Main.hs
     source-dirs: app
     ghc-options:
@@ -101,4 +101,4 @@ executables:
       - -O2
       - +RTS -xn -RTS
     dependencies:
-      - apecs-snake
+      - achtung-die-haskell

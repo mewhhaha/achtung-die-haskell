@@ -1,1 +1,1 @@
---command "stack ghci apecs-snake" --test "Reload.update"
+--command "stack ghci achtung-die-haskell" --test "Reload.update"

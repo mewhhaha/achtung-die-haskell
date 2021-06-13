@@ -52,6 +52,21 @@ endRound input = do
     (position, direction) <- liftIO randomStart
     return (CPosition (fromIntegral <$> position), CDirection direction, Apecs.Not :: Apecs.Not CDead)
 
+endMatch :: GameInput -> System' ()
+endMatch input = do
+  renderer <- tickState readRenderer
+  Apecs.set Apecs.global (CScene $ GameScene Paused input)
+
+  (CArena _ _ (Just texture)) <- Apecs.get Apecs.global
+  SDL.rendererRenderTarget renderer SDL.$= Just texture
+  SDL.rendererDrawColor renderer SDL.$= minBound
+  SDL.clear renderer
+  Apecs.set Apecs.global $ CArena mempty (perlin 1 5 0.05 0.5) (Just texture)
+
+  Apecs.cmapM $ \(CPlayer _) -> do
+    (position, direction) <- liftIO randomStart
+    return (CPosition (fromIntegral <$> position), CDirection direction, Apecs.Not :: Apecs.Not CDead)
+
 turnPlayers :: Map Player PlayerInput -> System' ()
 turnPlayers playerInputs = do
   dt <- tickState readDeltaTime
@@ -64,11 +79,66 @@ turnPlayers playerInputs = do
             | isActive turnRight -> Right (CDirection $ rotation rotationSpeed)
           _ -> Left ()
 
+movePlayers :: System' ()
+movePlayers = do
+  dt <- tickState readDeltaTime
+  Apecs.cmap $ \(CPosition position, CSpeed speed, CDirection direction, _ :: Apecs.Not CDead) -> Just (CPosition (position + (direction * pure speed * pure dt)))
+
+tailPlayers :: System' ()
+tailPlayers = do
+  ct <- tickState readTime
+  renderer <- tickState readRenderer
+
+  Apecs.cmapM $ \(CPlayer player, CPosition position@(V2 px py), CBrush brush, _ :: Apecs.Not CDead, CArena arena noise target) -> do
+    let space = noiseValue noise (px, py, ct)
+        origin = floor <$> position
+        range = subtract brush <$> [0 .. brush * 2]
+        circle = fmap fromIntegral . (+ origin) <$> [p | x <- range, y <- range, let p = V2 x y, inside (fromIntegral brush) (fromIntegral <$> p)]
+        covered = Map.fromList ((,player) . fmap fromIntegral <$> circle)
+        color = PlayerColor.fromPlayer player
+        noiseCutoff = -0.4
+
+    if space >= noiseCutoff
+      then do
+        case target of
+          Nothing -> pass
+          Just texture -> do
+            SDL.rendererRenderTarget renderer SDL.$= Just texture
+            SDL.rendererDrawColor renderer SDL.$= color
+            SDL.drawPoints renderer (Vector.fromList $ SDL.P <$> circle)
+        return $ Right (CArena (Map.union arena covered) noise target)
+      else return $ Left ()
+
+scorePlayers :: System' ()
+scorePlayers = do
+  Apecs.cmap $ \(CPlayer player, CPosition position@(V2 px py), CDirection direction, CBrush brush, CArena arena _ _, CScore score, _ :: Apecs.Not CDead) ->
+    let tip = round <$> position + direction * pure (fromIntegral brush + 2)
+        outsideArena = px < 0 || py < 0 || px > fromIntegral arenaWidth || py > fromIntegral arenaHeight
+        pointAll = Map.mapWithKey (\p v -> if p /= player then v + 1 else v) score
+        pointPlayer owner = Map.mapWithKey (\p v -> if p == owner then v + 1 else v) score
+     in case (Map.lookup tip arena, outsideArena) of
+          (_, True) -> Right (CDead, CScore pointAll)
+          (Just owner, _)
+            | owner == player -> Right (CDead, CScore pointAll)
+            | otherwise -> Right (CDead, CScore $ pointPlayer owner)
+          _ -> Left ()
+
+isRoundOver :: System' Bool
+isRoundOver = do
+  n <- Apecs.cfold (\n (CPlayer _, _ :: Apecs.Not CDead) -> n + 1) (0 :: Int)
+  return (n < 2)
+
+isMatchOver :: System' Bool
+isMatchOver = do
+  (CScore score) <- Apecs.get Apecs.global
+  let playerCount = Map.size score
+      winScore = (playerCount - 1) * 10
+      playerScores = Map.elems score
+      [firstPlace, secondPlace] = take 2 (reverse . sort $ playerScores)
+  return $ any (>= winScore) playerScores && firstPlace - secondPlace > 1
+
 system :: System' ()
 system = do
-  ct <- tickState readTime
-  dt <- tickState readDeltaTime
-  renderer <- tickState readRenderer
   (CScene scene) <- Apecs.get Apecs.global
   case scene of
     MenuScene input@(GameInput playerInputs _ continue) -> do
@@ -87,48 +157,20 @@ system = do
 
       case paused of
         Paused -> do
-          n <- Apecs.cfold (\n (CPlayer _, _ :: Apecs.Not CDead) -> n + 1) (0 :: Int)
+          when (isPressed continue) $ do
+            roundOver <- isRoundOver
+            matchOver <- isMatchOver
 
-          if n < 2
-            then when (isPressed continue) $ endRound input
-            else when (isPressed continue) $ Apecs.set Apecs.global (CScene $ GameScene Unpaused input)
+            case (matchOver, roundOver) of
+              (True, _) -> endMatch input
+              (_, True) -> endRound input
+              _ -> Apecs.set Apecs.global (CScene $ GameScene Unpaused input)
         Unpaused -> do
           turnPlayers playerInputs
+          movePlayers
+          tailPlayers
+          scorePlayers
 
-          Apecs.cmap $ \(CPosition position, CSpeed speed, CDirection direction, _ :: Apecs.Not CDead) -> Just (CPosition (position + (direction * pure speed * pure dt)))
-
-          Apecs.cmapM $ \(CPlayer player, CPosition position@(V2 px py), CBrush brush, _ :: Apecs.Not CDead, CArena arena noise target) -> do
-            let space = noiseValue noise (px, py, ct)
-                origin = floor <$> position
-                range = subtract brush <$> [0 .. brush * 2]
-                circle = fmap fromIntegral . (+ origin) <$> [p | x <- range, y <- range, let p = V2 x y, inside (fromIntegral brush) (fromIntegral <$> p)]
-                covered = Map.fromList ((,player) . fmap fromIntegral <$> circle)
-                color = PlayerColor.fromPlayer player
-                noiseCutoff = -0.4
-
-            if space >= noiseCutoff
-              then do
-                case target of
-                  Nothing -> pass
-                  Just texture -> do
-                    SDL.rendererRenderTarget renderer SDL.$= Just texture
-                    SDL.rendererDrawColor renderer SDL.$= color
-                    SDL.drawPoints renderer (Vector.fromList $ SDL.P <$> circle)
-                return $ Right (CArena (Map.union arena covered) noise target)
-              else return $ Left ()
-
-          Apecs.cmap $ \(CPlayer player, CPosition position@(V2 px py), CDirection direction, CBrush brush, CArena arena _ _, CScore score, _ :: Apecs.Not CDead) ->
-            let tip = round <$> position + direction * pure (fromIntegral brush + 2)
-                outsideArena = px < 0 || py < 0 || px > fromIntegral arenaWidth || py > fromIntegral arenaHeight
-                pointAll = Map.mapWithKey (\p v -> if p /= player then v + 1 else v) score
-                pointPlayer owner = Map.mapWithKey (\p v -> if p == owner then v + 1 else v) score
-             in case (Map.lookup tip arena, outsideArena) of
-                  (_, True) -> Right (CDead, CScore pointAll)
-                  (Just owner, _)
-                    | owner == player -> Right (CDead, CScore pointAll)
-                    | otherwise -> Right (CDead, CScore $ pointPlayer owner)
-                  _ -> Left ()
-
-          n <- Apecs.cfold (\n (CPlayer _, _ :: Apecs.Not CDead) -> n + 1) (0 :: Int)
-          when (n < 2) $ do
+          roundOver <- isRoundOver
+          when roundOver $ do
             Apecs.set Apecs.global (CScene $ GameScene Paused input)

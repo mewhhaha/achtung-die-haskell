@@ -1,8 +1,8 @@
 cradle:
   stack:
     - path: "src"
-      component: apecs-snake:lib
+      component: achtung-die-haskell:lib
 
     - path: "app"
-      component: apecs-snake:exe
+      component: achtung-die-haskell:exe
  

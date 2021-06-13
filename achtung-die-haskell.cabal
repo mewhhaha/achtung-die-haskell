@@ -3,18 +3,16 @@ cabal-version: 1.12
 -- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: bb7aa4a5a4295ea8415096432b18f34a9a87e37b028927b587269907ee9e5dd4
 
-name:           apecs-snake
+name:           achtung-die-haskell
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/apecs-snake#readme>
-homepage:       https://github.com/githubuser/apecs-snake#readme
-bug-reports:    https://github.com/githubuser/apecs-snake/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2021 Author name here
-license:        BSD3
+description:    Please see the README on GitHub at <https://github.com/mewhhaha/achtung-die-haskell#readme>
+homepage:       https://github.com/mewhhaha/achtung-die-haskell#readme
+bug-reports:    https://github.com/mewhhaha/achtung-die-haskell/issues
+author:         Jacob Torrång
+maintainer:     kopatheonlyone@hotmail.com
+copyright:      2021 Jacob Torrång
+license:        MIT
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
@@ -23,7 +21,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/apecs-snake
+  location: https://github.com/mewhhaha/achtung-die-haskell
 
 library
   exposed-modules:
@@ -39,7 +37,7 @@ library
       World
       World.Component
   other-modules:
-      Paths_apecs_snake
+      Paths_achtung_die_haskell
   hs-source-dirs:
       src
   default-extensions:
@@ -111,11 +109,11 @@ library
     , vector
   default-language: Haskell2010
 
-executable apecs-snake-exe
+executable achtung-die-haskell-exe
   main-is: Main.hs
   other-modules:
       Reload
-      Paths_apecs_snake
+      Paths_achtung_die_haskell
   hs-source-dirs:
       app
   default-extensions:
@@ -168,8 +166,8 @@ executable apecs-snake-exe
       TypeSynonymInstances
   ghc-options: -Wall -fwrite-ide-info -fexternal-interpreter -fvalidate-ide-info -threaded -rtsopts -with-rtsopts=-N -O2 +RTS -xn -RTS
   build-depends:
-      apecs
-    , apecs-snake
+      achtung-die-haskell
+    , apecs
     , async
     , base >=4.7 && <5
     , containers
