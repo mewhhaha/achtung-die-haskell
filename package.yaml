@@ -1,7 +1,7 @@
 name: achtung-die-haskell
 version: 0.1.0.0
 github: "mewhhaha/achtung-die-haskell"
-license: MIT
+license: BSD3
 author: "Jacob Torrång"
 maintainer: "kopatheonlyone@hotmail.com"
 copyright: "2021 Jacob Torrång"
