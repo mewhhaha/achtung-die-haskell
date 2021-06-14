@@ -31,6 +31,8 @@ These are the instructions for playing the game
 ### Menu screen
 Press the keys matching the controls displayed on the screen to add or remove a player from the game. The game needs at least 2 players. Then press `[SPACE]` to start the game.
 
+![Image of Menu screen](./promo/menu.png)
+
 ### Game screen
 Each round starts paused. It shows each player as their color as a dot designating their starting position. Press `[SPACE]` to start.
 
@@ -40,8 +42,12 @@ Players play to `(n - 1) * 10` points where `n` is the number of players. It is 
 
 Each round ends paused. Press `[SPACE]` to go to the next round. If the match is over, then pressing `[SPACE]` moves you to the end screen.
 
+![Image of Game screen](./promo/game.png)
+
 ### End screen
 Press space to go back to the menu screen
+
+![Image of End screen](./promo/end.png)
 
 ## Contributing
 This project is considered done, but I will look over any contributions made to the project if there are any bugs.
