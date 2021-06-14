@@ -79,7 +79,7 @@ tailPlayers = do
   renderer <- tickState readRenderer
 
   Apecs.cmapM $ \(CPlayer player, CPosition position@(V2 px py), CBrush brush, _ :: Apecs.Not CDead, CArena arena noise target) -> do
-    let space = noiseValue noise (px, py, ct)
+    let space = noiseValue noise (px, py, ct * (fromIntegral . fromEnum $ player))
         origin = floor <$> position
         range = subtract brush <$> [0 .. brush * 2]
         circle = fmap fromIntegral . (+ origin) <$> [p | x <- range, y <- range, let p = V2 x y, inside (fromIntegral brush) (fromIntegral <$> p)]
