@@ -10,7 +10,7 @@ import Play (Command, Tick)
 import Relude
 import World.Component
 
-makeWorld "World" [''CScene, ''CArena, ''CPosition, ''CDirection, ''CBrush, ''CDead, ''CPlayer, ''CScore, ''CResources, ''CSpeed]
+makeWorld "World" [''CGameInput, ''CScene, ''CArena, ''CPosition, ''CDirection, ''CBrush, ''CDead, ''CPlayer, ''CScore, ''CResources, ''CSpeed]
 
 type System' a = (Apecs.SystemT World (ReaderT (Tick World) (ExceptT Command IO))) a
 

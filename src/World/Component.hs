@@ -153,10 +153,21 @@ defaultGameInput =
       continue = KeyboardInput SDL.ScancodeSpace KeyUp
     }
 
+newtype CGameInput = CGameInput GameInput
+
+instance Apecs.Component CGameInput where type Storage CGameInput = Apecs.Global CGameInput
+
+instance Semigroup CGameInput where _ <> c2 = c2
+
+instance Monoid CGameInput where
+  mempty = CGameInput defaultGameInput
+
+-- Scene components
+
 data Paused = Paused | Unpaused
   deriving (Eq)
 
-data Scene = MenuScene GameInput | GameScene Paused GameInput | EndScene GameInput
+data Scene = MenuScene | GameScene Paused | EndScene
 
 newtype CScene = CScene Scene
 
@@ -165,4 +176,4 @@ instance Apecs.Component CScene where type Storage CScene = Apecs.Global CScene
 instance Semigroup CScene where _ <> c2 = c2
 
 instance Monoid CScene where
-  mempty = CScene $ MenuScene defaultGameInput
+  mempty = CScene MenuScene

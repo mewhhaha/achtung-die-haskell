@@ -37,10 +37,10 @@ isPressed :: KeyboardInput -> Bool
 isPressed (KeyboardInput _ KeyPressed) = True
 isPressed _ = False
 
-endRound :: GameInput -> System' ()
-endRound input = do
+endRound :: System' ()
+endRound = do
   renderer <- tickState readRenderer
-  Apecs.set Apecs.global (CScene $ GameScene Paused input)
+  Apecs.set Apecs.global (CScene $ GameScene Paused)
 
   (CArena _ _ (Just texture)) <- Apecs.get Apecs.global
   SDL.rendererRenderTarget renderer SDL.$= Just texture
@@ -52,9 +52,9 @@ endRound input = do
     (position, direction) <- liftIO randomStart
     return (CPosition (fromIntegral <$> position), CDirection direction, Apecs.Not :: Apecs.Not CDead)
 
-endMatch :: GameInput -> System' ()
-endMatch input = do
-  Apecs.set Apecs.global $ CScene $ EndScene input
+endMatch :: System' ()
+endMatch = do
+  Apecs.set Apecs.global $ CScene EndScene
 
 turnPlayers :: Map Player PlayerInput -> System' ()
 turnPlayers playerInputs = do
@@ -129,9 +129,9 @@ isMatchOver = do
 
 system :: System' ()
 system = do
-  (CScene scene) <- Apecs.get Apecs.global
+  (CScene scene, CGameInput (GameInput playerInputs reset continue)) <- Apecs.get Apecs.global
   case scene of
-    MenuScene input@(GameInput playerInputs _ continue) -> do
+    MenuScene -> do
       lockedInPlayers <- Apecs.cfold (\m (CPlayer player) -> Set.insert player m) mempty
 
       forM_ (Map.assocs playerInputs) $ \(player, PlayerInput {..}) -> do
@@ -140,13 +140,13 @@ system = do
             then PlayerArchetype.remove player
             else PlayerArchetype.make player
       when (isPressed continue && Set.size lockedInPlayers >= 2) $ do
-        endRound input
-        Apecs.set Apecs.global $ CScene (GameScene Paused input)
-    EndScene input@(GameInput _ _ continue) ->
+        endRound
+        Apecs.set Apecs.global $ CScene (GameScene Paused)
+    EndScene ->
       when (isPressed continue) $ do
-        Apecs.set Apecs.global $ CScene (MenuScene input)
+        Apecs.set Apecs.global $ CScene MenuScene
         Apecs.cmapM_ $ \(CPlayer player) -> PlayerArchetype.remove player
-    GameScene paused input@GameInput {..} -> do
+    GameScene paused -> do
       when (isActive reset) . lift $ throwError Reset
 
       case paused of
@@ -156,9 +156,9 @@ system = do
             matchOver <- isMatchOver
 
             case (matchOver, roundOver) of
-              (True, _) -> endMatch input
-              (_, True) -> endRound input
-              _ -> Apecs.set Apecs.global (CScene $ GameScene Unpaused input)
+              (True, _) -> endMatch
+              (_, True) -> endRound
+              _ -> Apecs.set Apecs.global (CScene $ GameScene Unpaused)
         Unpaused -> do
           turnPlayers playerInputs
           movePlayers
@@ -167,4 +167,4 @@ system = do
 
           roundOver <- isRoundOver
           when roundOver $ do
-            Apecs.set Apecs.global (CScene $ GameScene Paused input)
+            Apecs.set Apecs.global (CScene $ GameScene Paused)

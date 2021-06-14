@@ -14,7 +14,7 @@ import Relude
 import SDL qualified
 import SDL.Font qualified as SDLFont
 import World (System', tickState)
-import World.Component (CPlayer (..), CResources (..), CScene (..), CScore (..), GameInput (..), KeyboardInput (..), Player (..), PlayerInput (..), Scene (EndScene, GameScene, MenuScene), arenaWidth, turnLeft, turnRight)
+import World.Component (CGameInput (CGameInput), CPlayer (..), CResources (..), CScene (..), CScore (..), GameInput (..), KeyboardInput (..), Player (..), PlayerInput (..), Scene (EndScene, GameScene, MenuScene), arenaWidth, turnLeft, turnRight)
 
 createTextTexture :: Text -> V4 Word8 -> System' SDL.Texture
 createTextTexture fontText fontColor = do
@@ -130,10 +130,10 @@ endSceneOverlay = do
 
 system :: System' ()
 system = do
-  (CScene scene) <- Apecs.get Apecs.global
+  (CScene scene, CGameInput GameInput {playerInputs}) <- Apecs.get Apecs.global
   renderer <- tickState readRenderer
   SDL.rendererRenderTarget renderer SDL.$= Nothing
   case scene of
-    GameScene {} -> gameSceneOverlay
-    MenuScene GameInput {..} -> menuSceneOverlay playerInputs
-    EndScene {} -> endSceneOverlay
+    GameScene _ -> gameSceneOverlay
+    MenuScene -> menuSceneOverlay playerInputs
+    EndScene -> endSceneOverlay

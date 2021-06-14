@@ -57,11 +57,4 @@ system = do
       keyboardEvents = mapMaybe keyboardEventData payload
       keySets = applyBoth (fromList @(Set SDL.Scancode)) . partitionEithers $ separateMotion <$> keyboardEvents
       update = parseKeyboardInput keySets isKeyDown
-  (CScene schema) <- Apecs.get Apecs.global
-  let updatedSchema = case schema of
-        GameScene paused input -> GameScene paused $ updateGameInput input update
-        MenuScene input -> MenuScene $ updateGameInput input update
-        EndScene input -> EndScene $ updateGameInput input update
-  Apecs.set Apecs.global (CScene updatedSchema)
-
-  pass
+  Apecs.modify Apecs.global $ \(CGameInput input) -> CGameInput (updateGameInput input update)
