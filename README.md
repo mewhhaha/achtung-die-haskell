@@ -22,6 +22,8 @@ ghcid
 
 This is running an interpreted version of the game that updates as code is updated. I developed the game in this "hot reload" environment. Feel free to try changing things.
 
+It is also possible to build the game and run it, but you'd have to move all the files to their appropriate location to run it.
+
 ## Usage
 
 These are the instructions for playing the game
